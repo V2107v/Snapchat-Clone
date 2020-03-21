@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -90,9 +91,15 @@ class CreateSnapActivity : AppCompatActivity() {
             Toast.makeText(this,"Upload Failed",Toast.LENGTH_SHORT).show()
         }).addOnSuccessListener (OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-            Toast.makeText(this,"Uploaded Successfully!",Toast.LENGTH_SHORT).show()
+
+            val downloadUrl = FirebaseStorage.getInstance().getReference().child("Images").downloadUrl
+
+            Toast.makeText(this,"Snap Generated!",Toast.LENGTH_SHORT).show()
 
             val intent = Intent(this,ChooseUserActivity::class.java)
+            intent.putExtra("imageUrl",downloadUrl.toString())
+            intent.putExtra("imageName",imageName)
+            intent.putExtra("message",messageText?.text.toString())
             startActivity(intent)
         })
     }

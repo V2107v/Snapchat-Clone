@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -20,6 +21,7 @@ class SnapsActivity : AppCompatActivity() {
     val mAuth  = FirebaseAuth.getInstance()
     var snapListView : ListView? = null
     var emails : ArrayList<String> = ArrayList()
+    var snaps : ArrayList<DataSnapshot> = ArrayList();
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
@@ -62,6 +64,7 @@ class SnapsActivity : AppCompatActivity() {
             FirebaseDatabase.getInstance().getReference().child("users").child(it).child("snaps").addChildEventListener(object: ChildEventListener{
                 override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                     emails.add(p0.child("from").value as String)
+                    snaps.add(p0!!)
                     adapter.notifyDataSetChanged()
                 }
                 override fun onCancelled(p0: DatabaseError) {}
@@ -69,6 +72,19 @@ class SnapsActivity : AppCompatActivity() {
                 override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
                 override fun onChildRemoved(p0: DataSnapshot) {}
             })
+        }
+
+        snapListView?.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+
+            val snapShot = snaps.get(position)
+
+            val intent = Intent(this,ViewSnapActivity::class.java)
+            intent.putExtra("imageName",snapShot.child("imageName").value as String)
+            intent.putExtra("imageUrl",snapShot.child("imageUrl").value as String)
+            intent.putExtra("message",snapShot.child("message").value as String)
+            intent.putExtra("snapKey",snapShot.key)
+            startActivity(intent)
+
         }
     }
 

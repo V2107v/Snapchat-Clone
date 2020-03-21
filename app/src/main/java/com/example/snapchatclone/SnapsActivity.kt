@@ -1,5 +1,6 @@
 package com.example.snapchatclone
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -21,7 +22,11 @@ class SnapsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item?.itemId == R.id.createSnap) {
 
+            val intent = Intent(this,CreateSnapActivity::class.java)
+            startActivity(intent)
+
         } else if (item?.itemId == R.id.logout) {
+
             mAuth.signOut()
             Toast.makeText(applicationContext,"Logged Out",Toast.LENGTH_SHORT).show()
             finish()

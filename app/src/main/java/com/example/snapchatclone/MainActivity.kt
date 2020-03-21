@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,7 +44,9 @@ class MainActivity : AppCompatActivity() {
                         .addOnCompleteListener(this) {task ->
                         if(task.isSuccessful) {
                             Toast.makeText(this,"Sign Up Success!!",Toast.LENGTH_SHORT).show()
-                            // Add to database
+                            task.result?.user?.uid?.let {
+                                FirebaseDatabase.getInstance().getReference().child("users").child(it).child("email").setValue(emailEditText?.text.toString())
+                            }
                             login()
                         } else {
                             Toast.makeText(this,"Try Again!!",Toast.LENGTH_SHORT).show()

@@ -70,7 +70,17 @@ class SnapsActivity : AppCompatActivity() {
                 override fun onCancelled(p0: DatabaseError) {}
                 override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
                 override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
-                override fun onChildRemoved(p0: DataSnapshot) {}
+                override fun onChildRemoved(p0: DataSnapshot) {
+                    var index = 0
+                    for(snap: DataSnapshot in snaps) {
+                        if(snap.key == p0.key) {
+                            snaps.removeAt(index)
+                            emails.removeAt(index)
+                        }
+                        index++
+                    }
+                    adapter.notifyDataSetChanged()
+                }
             })
         }
 

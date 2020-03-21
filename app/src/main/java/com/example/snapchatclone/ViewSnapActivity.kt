@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -14,6 +17,7 @@ class ViewSnapActivity : AppCompatActivity() {
 
     var messageTextView : TextView? = null
     var snapImageView : ImageView? = null
+    val mAuth  = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,11 +47,20 @@ class ViewSnapActivity : AppCompatActivity() {
                 connection.connect()
                 val `in` = connection.inputStream
                 return BitmapFactory.decodeStream(`in`)
-             } catch (e: Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 return  null
             }
         }
 
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        mAuth.currentUser?.uid?.let {
+            FirebaseDatabase.getInstance().getReference().child("users").child(it).child("snaps").child(intent.getStringExtra("snapKey")).removeValue()
+        }
+        FirebaseStorage.getInstance().getReference().child("images").child(intent.getStringExtra("imageName")).delete()
     }
 }

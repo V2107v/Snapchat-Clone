@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -15,6 +16,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.storage.FirebaseStorage
@@ -92,15 +94,29 @@ class CreateSnapActivity : AppCompatActivity() {
         }).addOnSuccessListener (OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
 
-            val downloadUrl = FirebaseStorage.getInstance().getReference().child("Images").downloadUrl
+            var url: String? = null
+            val downloadUri = taskSnapshot.metadata?.reference?.downloadUrl
+            downloadUri?.addOnCompleteListener(OnCompleteListener<Uri> { task ->
+                if (task.isSuccessful) {
+                    // Task completed successfully
+                    val result = task.result
+                    url = downloadUri.result.toString()
+                    Log.i("Url", url)
 
-            Toast.makeText(this,"Snap Generated!",Toast.LENGTH_SHORT).show()
+                } else {
+                    // Task failed with an exception
+                    val exception = task.exception
+                    Log.i("Exception", exception.toString())
+                }
 
-            val intent = Intent(this,ChooseUserActivity::class.java)
-            intent.putExtra("imageUrl",downloadUrl.toString())
-            intent.putExtra("imageName",imageName)
-            intent.putExtra("message",messageText?.text.toString())
-            startActivity(intent)
+                Toast.makeText(this, "Snap Generated!", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(this, ChooseUserActivity::class.java)
+                intent.putExtra("imageUrl", url.toString())
+                intent.putExtra("imageName", imageName)
+                intent.putExtra("message", messageText?.text.toString())
+                startActivity(intent)
+            })
         })
     }
 }
